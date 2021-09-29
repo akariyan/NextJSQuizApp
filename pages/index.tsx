@@ -1,7 +1,9 @@
+import MainLayout from "../components/Layout/MainLayout";
+
 export default function Home() {
   return (
-    <div>
-      <p>next-quizapp</p>
-    </div>
+    <MainLayout>
+      <p>Next-Quiz-App</p>
+    </MainLayout>
   );
 }
