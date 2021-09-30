@@ -4,7 +4,18 @@ import { createStitches } from "@stitches/react";
 export const { styled, css } = createStitches({
   media: {
     //  TO-DO : 임시 - 반응형 개발을 위한 타겟 디바이스 사이즈 정리
-    mobile: "(min-width: 600px)",
-    pcweb: "(min-width: 1280px)",
+    mobile_m: "(min-width: 375px)",
+    mobile_l: "(min-width: 425px)",
+    tablet: "(min-width: 768px)",
+    pc: "(min-width: 1024px)",
+  },
+  theme: {
+    colors: {
+      black: "#000000",
+      white: "#FFFFFF",
+      red: "#ff0000",
+      yellow: "#ffff00",
+      green: "#008000",
+    },
   },
 });

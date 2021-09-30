@@ -1,17 +1,17 @@
 import Header from "./Header";
+import { styled } from "../../stitches.config";
 
 //  TO-DO : 테스트용 CSS -> 추후 제거 예정
-const layoutStyle = {
+const StyledMainLayout = styled("div", {
   margin: 20,
   padding: 20,
-  border: "1px solid #DDD",
-};
+});
 
 const MainLayout = (props) => (
-  <div style={layoutStyle}>
+  <StyledMainLayout>
     <Header />
     {props.children}
-  </div>
+  </StyledMainLayout>
 );
 
 export default MainLayout;
