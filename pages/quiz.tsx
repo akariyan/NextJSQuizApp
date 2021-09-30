@@ -1,4 +1,4 @@
-import MainLayout from "../components/Layout/MainLayout";
+import MainLayout from "../components/layout/MainLayout";
 import { styled } from "../stitches.config";
 
 export default function Quiz() {

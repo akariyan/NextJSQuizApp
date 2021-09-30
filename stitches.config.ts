@@ -16,6 +16,9 @@ export const { styled, css } = createStitches({
       red: "#ff0000",
       yellow: "#ffff00",
       green: "#008000",
+      greenYellow: "#ADFF2F",
+      mint: "#BDFCC9",
+      s_cyanblue: "#3498db",
     },
   },
 });
