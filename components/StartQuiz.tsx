@@ -4,8 +4,10 @@ import Button from "./ui/Button";
 import Input from "./ui/Input";
 import Select from "./ui/Select";
 import { QUIZ_CATEGORYS, QUIZ_DIFFICULTY } from "../Constants";
-import { QuizOption } from "../api/types/apiType";
-import { useState } from "react";
+import { Difficulty, QuizOption } from "../api/types/apiType";
+import { useCallback, useState } from "react";
+import Router from "next/router";
+import { getQuiz } from "../api/quizAPI";
 
 const Container = styled("div", {
   gridArea: "main",
@@ -42,11 +44,48 @@ const Label = styled("span", {
 
 function StartQuiz() {
   const [amount, setAmount] = useState(0);
+  const [category, setCategory] = useState(0);
+  const [difficulty, setDifficulty] = useState("");
 
-  const onInputChange = (e) => {
-    setAmount(e.target.value);
-    console.log(amount);
-  };
+  const onInputChange = useCallback(
+    (e) => {
+      setAmount(e.target.value);
+    },
+    [setAmount]
+  );
+
+  const onSelectChange = useCallback((e) => {
+    switch (e.target.name) {
+      case "category":
+        setCategory(e.target.value);
+        break;
+      case "difficulty":
+        setDifficulty(e.target.value);
+        break;
+    }
+  }, []);
+
+  async function goQuiz() {
+    console.log("go!");
+    const options: QuizOption = {
+      amount: Number(amount),
+      category: category ? category : undefined,
+      difficulty: difficulty ? (difficulty as Difficulty) : undefined,
+    };
+    const result = await getQuiz(options);
+    console.log(result);
+    Router.push(
+      {
+        //  TO-DO : 퀴즈 데이터를 query로 넘길꺼면 더 적합한 형태로 다듬어야함
+        //  query 말고 전역 상태로 업데이트하고 quiz 페이지에서 상태를 참조하는 방식이 될지 조사
+        pathname: "/quiz",
+        query: {
+          results: JSON.stringify(result.data.results),
+        },
+      },
+      "/quiz"
+    );
+  }
 
   return (
     <Container>
@@ -60,25 +99,23 @@ function StartQuiz() {
         <Label>Quiz Category</Label>
       </LabelCell>
       <FunctionCell>
-        <Select name="category" options={QUIZ_CATEGORYS} />
+        <Select
+          name="category"
+          options={QUIZ_CATEGORYS}
+          onChange={onSelectChange}
+        />
       </FunctionCell>
       <LabelCell>
         <Label>Quiz Difficulty</Label>
       </LabelCell>
       <FunctionCell>
-        <Select name="difficulty" options={QUIZ_DIFFICULTY} />
+        <Select
+          name="difficulty"
+          options={QUIZ_DIFFICULTY}
+          onChange={onSelectChange}
+        />
       </FunctionCell>
-      <Link
-        href={{
-          pathname: "/quiz",
-          query: {
-            amount: amount,
-          },
-        }}
-        passHref
-      >
-        <Button name="Start Quiz!" />
-      </Link>
+      <Button name="Start Quiz!" onClick={goQuiz} />
     </Container>
   );
 }

@@ -18,10 +18,10 @@ type responseCode = 0 | 1 | 2 | 3 | 4;
 
 export interface QuizResponse {
   response_code: responseCode;
-  results?: Quiz[]; //  responsecode 0을 제외하고는 전부 results가 없으므로 nullable
+  results?: QuizData[]; //  responsecode 0을 제외하고는 전부 results가 없으므로 nullable
 }
 
-export interface Quiz {
+export interface QuizData {
   category: string;
   type: string;
   difficulty: Difficulty;

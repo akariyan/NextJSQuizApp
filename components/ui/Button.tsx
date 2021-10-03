@@ -6,6 +6,8 @@ const StyledButton = styled("button", {
   fontSize: "2em",
 });
 
-const Button = (props) => <StyledButton>{props.name}</StyledButton>;
+const Button = (props) => (
+  <StyledButton onClick={props.onClick}>{props.name}</StyledButton>
+);
 
 export default Button;
