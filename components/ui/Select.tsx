@@ -7,7 +7,7 @@ const StyledSelect = styled("select", {});
 interface IProps {
   name: string;
   options: ISelectBoxOption[];
-  onChange: (any) => void;
+  onChange: React.ChangeEventHandler<HTMLSelectElement>;
 }
 
 function Select({ name, options, onChange }: IProps) {

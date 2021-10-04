@@ -3,10 +3,9 @@ import Button from "../components/ui/Button";
 import Input from "../components/ui/Input";
 import Select from "../components/ui/Select";
 import { QUIZ_CATEGORYS, QUIZ_DIFFICULTY } from "../Constants";
-import { Difficulty, QuizOption } from "../rest/types/apiType";
+import { Difficulty } from "../rest/types/apiType";
 import { useCallback, useState } from "react";
 import Router from "next/router";
-import { getQuiz } from "../rest/quizAPI";
 
 const Container = styled("div", {
   gridArea: "main",
@@ -61,24 +60,17 @@ export default function Home() {
     }
   }, []);
 
-  async function goQuiz() {
-    console.log("go!");
-    const options: QuizOption = {
-      amount: Number(amount),
-      category: category ? category : undefined,
-      difficulty: difficulty ? (difficulty as Difficulty) : undefined,
-    };
-    const result = await getQuiz(options);
-    console.log(result);
+  function goQuiz() {
     Router.push(
       {
-        //  TO-DO : quizdata를 query에 넣을수 있게 구조화
         pathname: "/quiz",
         query: {
-          results: JSON.stringify(result.data.results),
+          amount: amount,
+          category: category,
+          difficulty: difficulty,
         },
-      },
-      "/quiz"
+      }
+      // "/quiz"
     );
   }
 

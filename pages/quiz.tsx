@@ -1,9 +1,8 @@
-import { useRouter } from "next/router";
+import { getQuiz } from "../rest/quizAPI";
+import { Difficulty, QuizOption, QuizData } from "../rest/types/apiType";
 import { styled } from "../stitches.config";
 
-export default function Quiz() {
-  const router = useRouter();
-
+export default function Quiz(props) {
   const Container = styled("div", {
     gridArea: "main",
     display: "grid",
@@ -16,7 +15,38 @@ export default function Quiz() {
     },
   });
 
-  const results = router.query.results;
+  function renderQuiz(quiz: QuizData) {
+    return (
+      <div key={quiz.question}>
+        <div>category : {quiz.category}</div>
+        <div>difficulty : {quiz.difficulty}</div>
+        <div>question : {quiz.question}</div>
+        <div>correct_answer : {quiz.correct_answer}</div>
+        {quiz.incorrect_answers.map((anwser) => {
+          <div key={anwser}>{anwser}</div>;
+        })}
+      </div>
+    );
+  }
 
-  return <Container>{results}</Container>;
+  return <Container>{props.data.map((quiz) => renderQuiz(quiz))}</Container>;
+}
+
+//  next/router로 이동할때 server에서 pre-rendering해놓은 html 던져주면서 호출?
+export async function getServerSideProps(context) {
+  const options: QuizOption = {
+    amount: Number(context.query.amount),
+    category: context.query.category ? context.query.category : undefined,
+    difficulty: context.query.difficulty
+      ? (context.query.difficulty as Difficulty)
+      : undefined,
+  };
+  const result = await getQuiz(options);
+  const data = result.data.results;
+
+  return {
+    props: {
+      data,
+    },
+  };
 }
