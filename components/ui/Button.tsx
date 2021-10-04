@@ -6,8 +6,13 @@ const StyledButton = styled("button", {
   fontSize: "2em",
 });
 
-const Button = (props) => (
-  <StyledButton onClick={props.onClick}>{props.name}</StyledButton>
+interface IProps {
+  onClick: React.MouseEventHandler<HTMLButtonElement>;
+  name: string;
+}
+
+const Button = ({ onClick, name }: IProps) => (
+  <StyledButton onClick={onClick}>{name}</StyledButton>
 );
 
 export default Button;

@@ -2,13 +2,13 @@ import { styled } from "../../stitches.config";
 
 const StyledInput = styled("input", {});
 
-function Input(props) {
-  return (
-    <StyledInput
-      placeholder={props.hint}
-      onChange={props.onChange}
-    ></StyledInput>
-  );
+interface IProps {
+  onChange: React.ChangeEventHandler<HTMLInputElement>;
+  hint: string;
+}
+
+function Input({ onChange, hint }: IProps) {
+  return <StyledInput placeholder={hint} onChange={onChange}></StyledInput>;
 }
 
 export default Input;
