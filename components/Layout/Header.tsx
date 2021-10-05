@@ -1,4 +1,5 @@
 import { styled } from "../../stitches.config";
+import Link from "next/link";
 
 const StyledHeader = styled("div", {
   backgroundColor: "$s_cyanblue",
@@ -14,7 +15,9 @@ const StyledTitleP = styled("p", {
 
 const Header = () => (
   <StyledHeader>
-    <StyledTitleP>Next-QuizApp</StyledTitleP>
+    <Link href="/" passHref>
+      <StyledTitleP>Next-QuizApp</StyledTitleP>
+    </Link>
   </StyledHeader>
 );
 

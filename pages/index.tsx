@@ -3,7 +3,6 @@ import Button from "../components/ui/Button";
 import Input from "../components/ui/Input";
 import Select from "../components/ui/Select";
 import { QUIZ_CATEGORYS, QUIZ_DIFFICULTY } from "../Constants";
-import { Difficulty } from "../rest/types/apiType";
 import { useCallback, useState } from "react";
 import Router from "next/router";
 
