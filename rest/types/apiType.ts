@@ -14,7 +14,7 @@ export interface QuizOption {
  * Code 4: 토큰 만료
  * 출처 : https://opentdb.com/api_config.php
  */
-type responseCode = 0 | 1 | 2 | 3 | 4;
+export type responseCode = 0 | 1 | 2 | 3 | 4;
 
 export interface QuizResponse {
   response_code: responseCode;

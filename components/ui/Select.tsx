@@ -11,7 +11,7 @@ interface IProps {
 }
 
 function Select({ name, options, onChange }: IProps) {
-  const optionList = options.map((option) =>
+  const optionsList = options.map((option) =>
     option.group ? (
       <optgroup id={option.group} label={option.group}>
         {option.children.map((child) => (
@@ -24,7 +24,7 @@ function Select({ name, options, onChange }: IProps) {
   );
   return (
     <StyledSelect name={name} onChange={onChange}>
-      {optionList}
+      {optionsList}
     </StyledSelect>
   );
 }

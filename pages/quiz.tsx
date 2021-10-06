@@ -1,64 +1,40 @@
 import { useRouter } from "next/router";
-import { useState } from "react";
+import { ReactElement, useState } from "react";
 import Button from "../components/ui/Button";
 import { getQuiz } from "../rest/quizAPI";
-import { Difficulty, QuizOption, QuizData } from "../rest/types/apiType";
+import {
+  Difficulty,
+  QuizOption,
+  QuizData,
+  responseCode,
+} from "../rest/types/apiType";
 import { styled } from "../stitches.config";
 import Router from "next/router";
+import QuizItem from "../components/QuizItem";
 
-export default function Quiz(props) {
-  const Container = styled("div", {
-    gridArea: "main",
-    display: "grid",
-    gridTemplateColumns: "1fr 1fr",
-    paddingLeft: "30vw",
-    paddingRight: "30vw",
-    ":last-child": {
-      gridColumnStart: 1,
-      gridColumnEnd: 3,
-    },
-  });
+const Container = styled("div", {
+  gridArea: "main",
+  display: "grid",
+  gridTemplateColumns: "1fr 1fr",
+  paddingLeft: "30vw",
+  paddingRight: "30vw",
+  ":last-child": {
+    gridColumnStart: 1,
+    gridColumnEnd: 3,
+  },
+});
+
+interface QuizProp {
+  resCode: responseCode;
+  quizList: QuizData[];
+}
+
+export default function Quiz({ resCode, quizList }: QuizProp) {
   const router = useRouter();
   const [quizIndex, setQuizIndex] = useState(0);
   const [correctCount, setCorrectCount] = useState(0);
-
-  function checkData() {
-    console.log(`render! : ${correctCount}`);
-    return props.resCode == 0 ? (
-      renderQuiz()
-    ) : (
-      <div>error : {props.resCode}</div>
-      //  TO-DO : response code에 따른 오류 안내 추가
-    );
-  }
-
-  function renderQuiz() {
-    const quizAmount = Number(router.query.amount);
-    const quizList: QuizData[] = props.data;
-    return (
-      <Container>
-        <div key={quizList[quizIndex].question}>
-          <div>category : {quizList[quizIndex].category}</div>
-          <div>difficulty : {quizList[quizIndex].difficulty}</div>
-          <div>question : {quizList[quizIndex].question}</div>
-          <div onClick={checkCorrect}>
-            correct_answer : {quizList[quizIndex].correct_answer}
-          </div>
-          {quizList[quizIndex].incorrect_answers.map((anwser) => {
-            return <div key={anwser}>{anwser}</div>;
-          })}
-        </div>
-        {quizIndex == quizAmount - 1 ? (
-          <Button name="Check Score" onClick={goResult} />
-        ) : (
-          <Button
-            name={`Next Quiz(${quizIndex + 1}/${quizAmount})`}
-            onClick={nextQuiz}
-          />
-        )}
-      </Container>
-    );
-  }
+  const quizAmount = Number(router.query.amount);
+  // const quizList: QuizData[] = data;
 
   //  Button Component onClick으로 전달하기 위한 wrapper
   function nextQuiz() {
@@ -86,7 +62,25 @@ export default function Quiz(props) {
     setCorrectCount((prevCorrectCount) => prevCorrectCount + 1);
   }
 
-  return <>{checkData()}</>;
+  return (
+    <>
+      {resCode == 0 ? (
+        <Container>
+          <QuizItem item={quizList[quizIndex]} />
+          {quizIndex == quizAmount - 1 ? (
+            <Button name="Check Score" onClick={goResult} />
+          ) : (
+            <Button
+              name={`Next Quiz(${quizIndex + 1}/${quizAmount})`}
+              onClick={nextQuiz}
+            />
+          )}
+        </Container>
+      ) : (
+        <div>error : {resCode}</div>
+      )}
+    </>
+  );
 }
 
 //  next/router로 이동할때 server에서 pre-rendering해놓은 html 던져주면서 호출?
@@ -104,7 +98,7 @@ export async function getServerSideProps(context) {
   return {
     props: {
       resCode,
-      data,
+      quizList: data,
     },
   };
 }
