@@ -2,15 +2,17 @@ import { styled } from "../../stitches.config";
 import Link from "next/link";
 
 const StyledHeader = styled("div", {
-  backgroundColor: "$s_cyanblue",
+  backgroundColor: "$greenCyan",
   gridArea: "header",
-  display: "grid",
+  display: "flex",
+  justifyContent: "center",
+  alignItems: "center",
 });
 
 const StyledTitleP = styled("p", {
-  textAlign: "center",
-  fontSize: "2em",
+  fontSize: "2.5em",
   color: "$white",
+  cursor: "pointer",
 });
 
 const Header = () => (

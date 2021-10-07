@@ -10,23 +10,28 @@ const Container = styled("div", {
   gridArea: "main",
   display: "grid",
   gridTemplateColumns: "1fr 1fr",
+  gridTemplateRows: "1fr 1fr 1fr 0.5fr",
   paddingLeft: "30vw",
   paddingRight: "30vw",
+  fontSize: "1.5em",
   ":last-child": {
     gridColumnStart: 1,
     gridColumnEnd: 3,
   },
   ".label-cell": {
     textAlign: "right",
-    padding: "2px",
-    margin: "20% 10% 20% 10%",
-    border: "3px solid",
+    paddingLeft: "1vw",
+    margin: "0",
+    display: "flex",
+    alignItems: "center",
   },
-  "function-cell": {
-    textAlign: "center",
-    padding: "2px",
-    margin: "20% 10% 20% 10%",
-    border: "3px solid",
+  ".function-cell": {
+    textAlign: "right",
+    paddingLeft: "1vw",
+    margin: "0",
+    display: "flex",
+    justifyContent: "left",
+    alignItems: "center",
   },
   ".label": {
     fontsize: "1.5em",
@@ -79,7 +84,7 @@ export default function Home() {
         <span className="label">Quiz Amount</span>
       </div>
       <div className="function-cell">
-        <Input hint="input number" onChange={onInputChange} />
+        <Input hint="input number" onChange={onInputChange} type="number" />
       </div>
       <div className="label-cell">
         <span className="label">Quiz Category</span>

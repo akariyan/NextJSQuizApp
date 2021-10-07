@@ -15,7 +15,8 @@ import QuizItem from "../components/QuizItem";
 const Container = styled("div", {
   gridArea: "main",
   display: "grid",
-  gridTemplateColumns: "1fr 1fr",
+  gridTemplateColumns: "1fr",
+  gridTemplateRows: "3fr 0.5fr",
   paddingLeft: "30vw",
   paddingRight: "30vw",
   ":last-child": {
@@ -66,7 +67,7 @@ export default function Quiz({ resCode, quizList }: QuizProp) {
     <>
       {resCode == 0 ? (
         <Container>
-          <QuizItem item={quizList[quizIndex]} />
+          <QuizItem item={quizList[quizIndex]} index={quizIndex} />
           {quizIndex == quizAmount - 1 ? (
             <Button name="Check Score" onClick={goResult} />
           ) : (

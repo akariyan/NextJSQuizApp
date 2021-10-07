@@ -1,9 +1,9 @@
 import { styled } from "../../stitches.config";
 
 const StyledButton = styled("button", {
-  backgroundColor: "$s_cyanblue",
+  fontSize: "1.5em",
+  backgroundColor: "$s_CyanBlue",
   color: "$white",
-  fontSize: "2em",
 });
 
 interface IProps {

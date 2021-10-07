@@ -2,7 +2,11 @@ import { Dispatch, SetStateAction } from "react";
 import { styled } from "../../stitches.config";
 import { ISelectBoxOption } from "../../types/selectBoxOption";
 
-const StyledSelect = styled("select", {});
+const StyledSelect = styled("select", {
+  width: "80%",
+  height: "4vh",
+  fontSize: "0.7em",
+});
 
 interface IProps {
   name: string;
