@@ -1,8 +1,8 @@
 import { QuizData } from "../rest/types/apiType";
 import { styled } from "../stitches.config";
-import Input from "./ui/Input";
+import InputGroup from "./ui/InputGroup";
 
-interface IProps {
+interface QuizItemProps {
   item: QuizData;
   index: number;
   callback?: (boolean) => void;
@@ -17,7 +17,7 @@ const StyledQuizItem = styled("div", {
   gridTemplateAreas: `
   "question"
   "tag"
-  "awnsers"
+  "awnserlist"
   `,
   fontSize: "1.5em",
   ".question": {
@@ -29,7 +29,7 @@ const StyledQuizItem = styled("div", {
     gridArea: "tag",
     span: {
       backgroundColor: "$greenCyan",
-      borderRadius: "0.5em",
+      borderRadius: "2.5vh",
       display: "inline-block",
       height: "5vh",
       margin: "2vw 2vh",
@@ -41,8 +41,8 @@ const StyledQuizItem = styled("div", {
     },
     ".category": {},
   },
-  ".awnsers": {
-    gridArea: "awnsers",
+  ".awnserlist": {
+    gridArea: "awnserlist",
     display: "flex",
     flexDirection: "column",
     input: {
@@ -51,7 +51,7 @@ const StyledQuizItem = styled("div", {
   },
 });
 
-export default function QuizItem({ item, index }: IProps) {
+export default function QuizItem({ item, index }: QuizItemProps) {
   function checkAnswer() {
     // 정답 여부 체크 후 callback을 통해 부모에게 정답 여부 전달
   }
@@ -62,21 +62,22 @@ export default function QuizItem({ item, index }: IProps) {
 
   const mapValue = shuffledAnswers.map((answer, idx) => (
     <div className="answer" key={idx}>
-      <Input type="radio" name="answer" value={answer} />
-      {answer}
+      <InputGroup.Radio type="radio" name="answer" value={answer} />
+      <span dangerouslySetInnerHTML={{ __html: answer }} />
     </div>
   ));
 
   return (
-    <StyledQuizItem key={item.question}>
-      <div className="question">
-        Q{index + 1} : {item.question}
-      </div>
+    <StyledQuizItem>
+      <div
+        className="question"
+        dangerouslySetInnerHTML={{ __html: `Q${index + 1} : ${item.question}` }}
+      />
       <div className="tag">
         <span className="difficulty">{item.difficulty}</span>
         <span className="category">{item.category}</span>
       </div>
-      {<div className="awnsers">{mapValue}</div>}
+      <div className="awnserlist">{mapValue}</div>
     </StyledQuizItem>
   );
 }

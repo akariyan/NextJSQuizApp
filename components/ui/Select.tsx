@@ -1,4 +1,4 @@
-import { Dispatch, SetStateAction } from "react";
+import { SelectHTMLAttributes } from "react";
 import { styled } from "../../stitches.config";
 import { ISelectBoxOption } from "../../types/selectBoxOption";
 
@@ -8,16 +8,15 @@ const StyledSelect = styled("select", {
   fontSize: "0.7em",
 });
 
-interface IProps {
+interface SelectProps extends SelectHTMLAttributes<HTMLSelectElement> {
   name: string;
   options: ISelectBoxOption[];
-  onChange: React.ChangeEventHandler<HTMLSelectElement>;
 }
 
-function Select({ name, options, onChange }: IProps) {
+function Select({ name, options, onChange }: SelectProps) {
   const optionsList = options.map((option) =>
     option.group ? (
-      <optgroup id={option.group} label={option.group}>
+      <optgroup key={option.group} label={option.group}>
         {option.children.map((child) => (
           <option key={child.id} value={child.value} label={child.text} />
         ))}

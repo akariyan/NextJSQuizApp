@@ -1,3 +1,4 @@
+import { ButtonHTMLAttributes } from "react";
 import { styled } from "../../stitches.config";
 
 const StyledButton = styled("button", {
@@ -6,13 +7,8 @@ const StyledButton = styled("button", {
   color: "$white",
 });
 
-interface IProps {
-  onClick: React.MouseEventHandler<HTMLButtonElement>;
-  name: string;
-}
+interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {}
 
-const Button = ({ onClick, name }: IProps) => (
-  <StyledButton onClick={onClick}>{name}</StyledButton>
-);
+const Button = (props: ButtonProps) => <StyledButton {...props} />;
 
 export default Button;

@@ -1,9 +1,9 @@
 import { styled } from "../stitches.config";
 import Button from "../components/ui/Button";
-import Input from "../components/ui/Input";
+import InputGroup from "../components/ui/InputGroup";
 import Select from "../components/ui/Select";
 import { QUIZ_CATEGORYS, QUIZ_DIFFICULTY } from "../Constants";
-import { useCallback, useState } from "react";
+import { useCallback, useState, ChangeEvent, ChangeEventHandler } from "react";
 import Router from "next/router";
 
 const Container = styled("div", {
@@ -47,16 +47,16 @@ export default function Home() {
   const [difficulty, setDifficulty] = useState("");
 
   const onInputChange = useCallback(
-    (e) => {
-      setAmount(e.target.value);
+    (e: ChangeEvent<HTMLInputElement>) => {
+      setAmount(Number(e.target.value));
     },
     [setAmount]
   );
 
-  const onSelectChange = useCallback((e) => {
+  const onSelectChange = useCallback((e: ChangeEvent<HTMLSelectElement>) => {
     switch (e.target.name) {
       case "category":
-        setCategory(e.target.value);
+        setCategory(Number(e.target.value));
         break;
       case "difficulty":
         setDifficulty(e.target.value);
@@ -73,8 +73,8 @@ export default function Home() {
           category: category,
           difficulty: difficulty,
         },
-      }
-      // "/quiz"
+      },
+      "/quiz"
     );
   }
 
@@ -84,7 +84,11 @@ export default function Home() {
         <span className="label">Quiz Amount</span>
       </div>
       <div className="function-cell">
-        <Input hint="input number" onChange={onInputChange} type="number" />
+        <InputGroup.Number
+          placeholder="input number"
+          onChange={onInputChange}
+          type="number"
+        />
       </div>
       <div className="label-cell">
         <span className="label">Quiz Category</span>
@@ -106,7 +110,7 @@ export default function Home() {
           onChange={onSelectChange}
         />
       </div>
-      <Button name="Start Quiz!" onClick={goQuiz} />
+      <Button onClick={goQuiz}>Start Quiz!</Button>
     </Container>
   );
 }

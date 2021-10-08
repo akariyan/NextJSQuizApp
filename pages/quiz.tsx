@@ -1,5 +1,5 @@
 import { useRouter } from "next/router";
-import { ReactElement, useState } from "react";
+import { useState } from "react";
 import Button from "../components/ui/Button";
 import { getQuiz } from "../rest/quizAPI";
 import {
@@ -69,12 +69,11 @@ export default function Quiz({ resCode, quizList }: QuizProp) {
         <Container>
           <QuizItem item={quizList[quizIndex]} index={quizIndex} />
           {quizIndex == quizAmount - 1 ? (
-            <Button name="Check Score" onClick={goResult} />
+            <Button onClick={goResult}>Check Score</Button>
           ) : (
-            <Button
-              name={`Next Quiz(${quizIndex + 1}/${quizAmount})`}
-              onClick={nextQuiz}
-            />
+            <Button onClick={nextQuiz}>
+              Next Quiz({quizIndex + 1}/{quizAmount})
+            </Button>
           )}
         </Container>
       ) : (
