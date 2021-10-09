@@ -73,8 +73,8 @@ export default function Home() {
           category: category,
           difficulty: difficulty,
         },
-      },
-      "/quiz"
+      }
+      // "/quiz"
     );
   }
 

@@ -1,3 +1,12 @@
+import {
+  ChangeEvent,
+  createRef,
+  forwardRef,
+  Ref,
+  useImperativeHandle,
+  useMemo,
+  useState,
+} from "react";
 import { QuizData } from "../rest/types/apiType";
 import { styled } from "../stitches.config";
 import InputGroup from "./ui/InputGroup";
@@ -5,7 +14,6 @@ import InputGroup from "./ui/InputGroup";
 interface QuizItemProps {
   item: QuizData;
   index: number;
-  callback?: (boolean) => void;
 }
 
 const StyledQuizItem = styled("div", {
@@ -51,18 +59,42 @@ const StyledQuizItem = styled("div", {
   },
 });
 
-export default function QuizItem({ item, index }: QuizItemProps) {
-  function checkAnswer() {
-    // 정답 여부 체크 후 callback을 통해 부모에게 정답 여부 전달
-  }
+export interface QuizItemRef {
+  checkAnswer: () => boolean;
+}
 
+const QuizItem = ({ item, index }: QuizItemProps, ref: Ref<QuizItemRef>) => {
+  const [selectedAnswer, setSelectedAnswer] = useState("");
   const correctAnswer = item.correct_answer;
   const answers = [...item.incorrect_answers, correctAnswer];
-  const shuffledAnswers = answers.sort(() => Math.random() - Math.random());
+  const shuffledAnswers = useMemo(
+    () => answers.sort(() => Math.random() - Math.random()),
+    [correctAnswer]
+  ); //  선택된 값 변경으로 인한 rendering시 shuffle 발생을 방지
+
+  useImperativeHandle(ref, () => ({ checkAnswer })); //  checkAnswer 함수를 부모에서 접근하기 위해 Ref 사용
+
+  const onChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setSelectedAnswer(e.target.value);
+  };
+
+  function checkAnswer() {
+    if (selectedAnswer == correctAnswer) {
+      return true;
+    } else {
+      return false;
+    }
+  }
 
   const mapValue = shuffledAnswers.map((answer, idx) => (
+    //  TO-DO : 다음 퀴즈에서도 체크 상태 유지되는 문제 해결
     <div className="answer" key={idx}>
-      <InputGroup.Radio type="radio" name="answer" value={answer} />
+      <InputGroup.Radio
+        type="radio"
+        name="answer"
+        value={answer}
+        onChange={onChange}
+      />
       <span dangerouslySetInnerHTML={{ __html: answer }} />
     </div>
   ));
@@ -80,4 +112,6 @@ export default function QuizItem({ item, index }: QuizItemProps) {
       <div className="awnserlist">{mapValue}</div>
     </StyledQuizItem>
   );
-}
+};
+
+export default forwardRef(QuizItem);
