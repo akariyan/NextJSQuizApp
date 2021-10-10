@@ -1,5 +1,12 @@
 import { useRouter } from "next/router";
-import { useRef, useState } from "react";
+import {
+  ChangeEvent,
+  ReactElement,
+  useCallback,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import Button from "../components/ui/Button";
 import { getQuiz } from "../rest/quizAPI";
 import {
@@ -10,7 +17,7 @@ import {
 } from "../rest/types/apiType";
 import { styled } from "../stitches.config";
 import Router from "next/router";
-import QuizItem, { QuizItemRef } from "../components/QuizItem";
+import QuizItem from "../components/QuizItem";
 
 const Container = styled("div", {
   gridArea: "main",
@@ -32,91 +39,89 @@ interface QuizProp {
 
 export default function Quiz({ resCode, quizList }: QuizProp) {
   const router = useRouter();
-  const [quizIndex, setQuizIndex] = useState(0);
-  const [quizReslutList, setQuizReslutList] = useState<QuizData[]>(quizList);
   const quizAmount = Number(router.query.amount);
-  const quizitemRef = useRef<QuizItemRef>(null);
-  const isChecked = useRef(false);
-  const recentCorrected = useRef<boolean>(null);
 
-  //  Button Component onClick으로 전달하기 위한 wrapper
-  function nextQuiz() {
-    const quizAmount = Number(router.query.amount);
-    if (quizIndex < quizAmount) {
-      isChecked.current = false;
-      setQuizIndex((prevQuizCount) => prevQuizCount + 1);
+  const [quizIndex, setQuizIndex] = useState(0);
+  const [quizResultList, setQuizResultList] = useState<QuizData[]>(quizList);
+  const [buttonLabel, setButtonLabel] = useState("Check answer"); //  버튼 문구 : 퀴즈 풀이 상태 / index에 따라 변경
+  const [currentSelectedValue, setCurrentSelectedValue] = useState(null); //  자식인 quizitem에서 현재 선택된 radio input의 value
+
+  //  자식인 QuizItem에서 발생한 select 이벤트를 통해 현재 선택된 값을 상태로 저장
+  const onSelectChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setCurrentSelectedValue(e.target.value);
+  };
+
+  //  버튼 클릭시
+  function quizOnClick() {
+    if (currentSelectedValue === null) {
+      //  TO-DO : alert -> 안내 UI 추가
+      alert("Please choice your awnser");
+      return;
     }
-    //  TO-DO : 정답 채점 및 안내 기능 구현
-    //  정답여부 저장 -> 상태로 저장 시 렌더링 발생하므로 다른 방법 필요?
-  }
 
-  //  결과 페이지로 이동
-  function goResult() {
-    Router.push(
-      {
-        pathname: "/result",
-        //  TO-DO : query로 채점 결과 전달
-      },
-      "/result"
-    );
-  }
-
-  function checkCorrect() {
-    isChecked.current = true; //  값 검증 완료됐으므로 버튼 변경을 위해 flag 변경
-    let updatedList = quizReslutList;
-    if (quizitemRef.current.checkAnswer()) {
-      recentCorrected.current = true;
-      updatedList[quizIndex].isCorrect = true;
-    } else {
-      recentCorrected.current = true;
-      updatedList[quizIndex].isCorrect = false;
-    }
-    setQuizReslutList([...updatedList]); //  수정된 배열을 새 배열로 인식시켜 렌더링 발생시킴
-  }
-
-  function renderButton(): JSX.Element {
-    if (!isChecked.current) {
+    //  quizlist[index].iscorrect로 null 오답 정답 여부 체크로 onclick 동작 분기
+    if (quizResultList[quizIndex].isCorrect === undefined) {
       //  정답 체크 전
-      return (
-        <Button onClick={checkCorrect}>
-          Check Answer({quizIndex + 1}/{quizAmount})
-        </Button>
-      );
-    } else {
+
+      //  정답 체크
+      const modifiedList = quizResultList.map((item, idx) => {
+        if (idx === quizIndex) {
+          console.log(`선택한 값 : ${currentSelectedValue}`);
+          item.isCorrect = currentSelectedValue === item.correct_answer;
+        }
+        return item;
+      });
+      setQuizResultList([...modifiedList]);
+
       //  TO-DO : alert -> 정답 여부 알려주는 별도 UI 추가
-      if (recentCorrected.current == true) {
-        alert("정답!");
-        recentCorrected.current = null;
-      } else if (recentCorrected.current == false) {
-        alert("오답!");
-        recentCorrected.current = null;
-      }
-      if (quizIndex == quizAmount - 1) {
-        //  마지막 문제에서 정답 체크 후
-        return <Button onClick={goResult}>Check Score</Button>;
+      if (quizResultList[quizIndex].isCorrect) {
+        alert("correct awnser!");
       } else {
-        //  정답 체크 후
-        return (
-          <Button onClick={nextQuiz}>
-            Next Quiz({quizIndex + 1}/{quizAmount})
-          </Button>
+        alert("wrong awnser!");
+      }
+
+      //  버튼 변경
+      if (quizIndex === quizAmount - 1) {
+        setButtonLabel("Check your score!");
+      } else {
+        setButtonLabel(`Next quiz(${quizIndex + 1}/${quizAmount})`);
+      }
+    } else {
+      //  정답 체크 후
+
+      if (quizIndex === quizAmount - 1) {
+        //  마지막 퀴즈일 경우 : 결과 페이지로 이동
+        Router.push(
+          {
+            pathname: "/result",
+            //  TO-DO : query로 채점 결과 전달
+          },
+          "/result"
         );
+      } else {
+        //  마지막이 아닐 경우 다음 퀴즈로 이동
+        setCurrentSelectedValue(null);
+        setButtonLabel("Check Answer");
+        setQuizIndex((prevQuizCount) => prevQuizCount + 1);
       }
     }
   }
 
+  //  FOR DEBUG
+  console.log(quizResultList[quizIndex].correct_answer);
   return (
     <>
-      {resCode == 0 ? (
+      {resCode === 0 ? (
         <Container>
           <QuizItem
-            item={quizList[quizIndex]}
+            quiz={quizResultList[quizIndex]}
             index={quizIndex}
-            ref={quizitemRef}
+            onSelectChange={onSelectChange}
           />
-          {renderButton()}
+          <Button onClick={quizOnClick}>{buttonLabel}</Button>
         </Container>
       ) : (
+        // TO-DO : resCode에 따른 에러 문구 출력
         <div>error : {resCode}</div>
       )}
     </>
@@ -134,7 +139,16 @@ export async function getServerSideProps(context) {
   };
   const res = await getQuiz(options);
   const resCode = res.data.response_code;
-  const data = res.data.results;
+  const originData = res.data.results;
+
+  //  정답과 오답을 섞은 출력용 리스트 할당
+  const data = originData.map((quiz) => {
+    quiz.answerList = [...quiz.incorrect_answers, quiz.correct_answer].sort(
+      () => Math.random() - Math.random()
+    );
+    return quiz;
+  });
+
   return {
     props: {
       resCode,

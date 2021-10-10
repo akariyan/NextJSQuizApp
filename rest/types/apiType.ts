@@ -28,5 +28,6 @@ export interface QuizData {
   question: string;
   correct_answer: string;
   incorrect_answers: string[];
+  answerList?: string[];
   isCorrect?: boolean;
 }

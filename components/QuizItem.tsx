@@ -1,19 +1,12 @@
-import {
-  ChangeEvent,
-  createRef,
-  forwardRef,
-  Ref,
-  useImperativeHandle,
-  useMemo,
-  useState,
-} from "react";
+import React, { ChangeEvent, useMemo, useState } from "react";
 import { QuizData } from "../rest/types/apiType";
 import { styled } from "../stitches.config";
 import InputGroup from "./ui/InputGroup";
 
 interface QuizItemProps {
-  item: QuizData;
+  quiz: QuizData;
   index: number;
+  onSelectChange: (e: ChangeEvent<HTMLInputElement>) => void;
 }
 
 const StyledQuizItem = styled("div", {
@@ -53,65 +46,55 @@ const StyledQuizItem = styled("div", {
     gridArea: "awnserlist",
     display: "flex",
     flexDirection: "column",
+    ".answer": {
+      marginBottom: "1.5vh",
+    },
     input: {
       width: "2em",
+    },
+    span: {
+      position: "relative",
+      top: "-10px",
+      left: "5px",
     },
   },
 });
 
-export interface QuizItemRef {
-  checkAnswer: () => boolean;
-}
-
-const QuizItem = ({ item, index }: QuizItemProps, ref: Ref<QuizItemRef>) => {
-  const [selectedAnswer, setSelectedAnswer] = useState("");
-  const correctAnswer = item.correct_answer;
-  const answers = [...item.incorrect_answers, correctAnswer];
-  const shuffledAnswers = useMemo(
-    () => answers.sort(() => Math.random() - Math.random()),
-    [correctAnswer]
-  ); //  선택된 값 변경으로 인한 rendering시 shuffle 발생을 방지
-
-  useImperativeHandle(ref, () => ({ checkAnswer })); //  checkAnswer 함수를 부모에서 접근하기 위해 Ref 사용
-
-  const onChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setSelectedAnswer(e.target.value);
+export default function QuizItem({
+  quiz,
+  index,
+  onSelectChange,
+}: QuizItemProps) {
+  const AwnserList = () => {
+    return (
+      <div className="awnserlist">
+        {quiz.answerList.map((answer, idx) => (
+          <div className="answer" key={idx}>
+            <InputGroup.Radio
+              type="radio"
+              name="answer"
+              value={answer}
+              onChange={onSelectChange}
+              disabled={quiz.isCorrect !== undefined}
+            />
+            <span dangerouslySetInnerHTML={{ __html: answer }} />
+          </div>
+        ))}
+      </div>
+    );
   };
-
-  function checkAnswer() {
-    if (selectedAnswer == correctAnswer) {
-      return true;
-    } else {
-      return false;
-    }
-  }
-
-  const mapValue = shuffledAnswers.map((answer, idx) => (
-    //  TO-DO : 다음 퀴즈에서도 체크 상태 유지되는 문제 해결
-    <div className="answer" key={idx}>
-      <InputGroup.Radio
-        type="radio"
-        name="answer"
-        value={answer}
-        onChange={onChange}
-      />
-      <span dangerouslySetInnerHTML={{ __html: answer }} />
-    </div>
-  ));
 
   return (
     <StyledQuizItem>
       <div
         className="question"
-        dangerouslySetInnerHTML={{ __html: `Q${index + 1} : ${item.question}` }}
+        dangerouslySetInnerHTML={{ __html: `Q${index + 1} : ${quiz.question}` }}
       />
       <div className="tag">
-        <span className="difficulty">{item.difficulty}</span>
-        <span className="category">{item.category}</span>
+        <span className="difficulty">{quiz.difficulty}</span>
+        <span className="category">{quiz.category}</span>
       </div>
-      <div className="awnserlist">{mapValue}</div>
+      <AwnserList />
     </StyledQuizItem>
   );
-};
-
-export default forwardRef(QuizItem);
+}
