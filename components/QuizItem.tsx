@@ -1,13 +1,7 @@
 import React, { ChangeEvent, useMemo, useState } from "react";
 import { QuizData } from "../rest/types/apiType";
 import { styled } from "../stitches.config";
-import InputGroup from "./ui/InputGroup";
-
-interface QuizItemProps {
-  quiz: QuizData;
-  index: number;
-  onSelectChange: (e: ChangeEvent<HTMLInputElement>) => void;
-}
+import InputGroup, { InputGroupProps } from "./ui/InputGroup";
 
 const StyledQuizItem = styled("div", {
   display: "grid",
@@ -52,7 +46,7 @@ const StyledQuizItem = styled("div", {
     input: {
       width: "2em",
     },
-    span: {
+    label: {
       position: "relative",
       top: "-10px",
       left: "5px",
@@ -60,29 +54,37 @@ const StyledQuizItem = styled("div", {
   },
 });
 
+interface QuizItemProps {
+  quiz: QuizData;
+  index: number;
+  onSelectChange: (e: ChangeEvent<HTMLInputElement>) => void;
+}
+
 export default function QuizItem({
   quiz,
   index,
   onSelectChange,
 }: QuizItemProps) {
-  const AwnserList = () => {
+  console.log(quiz);
+  const isChecked = (idx: number) =>
+    quiz.userSelectedIndex === idx ? `checked="false"` : null;
+
+  const newAnswerList = quiz.answerList.map((answer, idx) => {
     return (
-      <div className="awnserlist">
-        {quiz.answerList.map((answer, idx) => (
-          <div className="answer" key={idx}>
-            <InputGroup.Radio
-              type="radio"
-              name="answer"
-              value={answer}
-              onChange={onSelectChange}
-              disabled={quiz.isCorrect !== undefined}
-            />
-            <span dangerouslySetInnerHTML={{ __html: answer }} />
-          </div>
-        ))}
+      <div className="answer" key={idx}>
+        <InputGroup.Radio
+          type="radio"
+          name="answer"
+          id={answer}
+          value={answer}
+          onChange={onSelectChange}
+          disabled={quiz.isCorrect !== undefined}
+          checked={quiz.userSelectedIndex === idx}
+        />
+        <label htmlFor={answer} dangerouslySetInnerHTML={{ __html: answer }} />
       </div>
     );
-  };
+  });
 
   return (
     <StyledQuizItem>
@@ -94,7 +96,7 @@ export default function QuizItem({
         <span className="difficulty">{quiz.difficulty}</span>
         <span className="category">{quiz.category}</span>
       </div>
-      <AwnserList />
+      <div className="awnserlist">{newAnswerList}</div>
     </StyledQuizItem>
   );
 }

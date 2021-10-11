@@ -44,15 +44,36 @@ export default function Quiz({ resCode, quizList }: QuizProp) {
   const [quizIndex, setQuizIndex] = useState(0);
   const [quizResultList, setQuizResultList] = useState<QuizData[]>(quizList);
   const [buttonLabel, setButtonLabel] = useState("Check answer"); //  버튼 문구 : 퀴즈 풀이 상태 / index에 따라 변경
-  const [currentSelectedValue, setCurrentSelectedValue] = useState(null); //  자식인 quizitem에서 현재 선택된 radio input의 value
+  const [currentSelectedValue, setCurrentSelectedValue] =
+    useState<string>(null); //  자식인 quizitem에서 현재 선택된 radio input의 value
 
   //  자식인 QuizItem에서 발생한 select 이벤트를 통해 현재 선택된 값을 상태로 저장
   const onSelectChange = (e: ChangeEvent<HTMLInputElement>) => {
     setCurrentSelectedValue(e.target.value);
+    setQuizResultList((prevState) => {
+      return prevState.map((quiz, quizindex) => {
+        if (quizIndex === quizindex) {
+          let selectIndex: number;
+          quiz.answerList.map((answer, answerindex) => {
+            if (answer === e.target.value) {
+              selectIndex = answerindex;
+            }
+          });
+          return {
+            ...quiz,
+            userSelectedIndex: selectIndex,
+          };
+        } else {
+          return {
+            ...quiz,
+          };
+        }
+      });
+    });
   };
 
   //  버튼 클릭시
-  function quizOnClick() {
+  function onQuizClick() {
     if (currentSelectedValue === null) {
       //  TO-DO : alert -> 안내 UI 추가
       alert("Please choice your awnser");
@@ -66,20 +87,24 @@ export default function Quiz({ resCode, quizList }: QuizProp) {
       //  정답 체크
       const modifiedList = quizResultList.map((item, idx) => {
         if (idx === quizIndex) {
-          console.log(`선택한 값 : ${currentSelectedValue}`);
-          item.isCorrect = currentSelectedValue === item.correct_answer;
+          return {
+            ...item,
+            isCorrect: currentSelectedValue === item.correct_answer,
+          };
+        } else {
+          return item;
         }
-        return item;
       });
-      setQuizResultList([...modifiedList]);
 
       //  TO-DO : alert -> 정답 여부 알려주는 별도 UI 추가
-      if (quizResultList[quizIndex].isCorrect) {
+      if (modifiedList[quizIndex].isCorrect) {
         alert("correct awnser!");
       } else {
         alert("wrong awnser!");
       }
 
+      // setState -> asnyc
+      setQuizResultList(modifiedList); // -> event callback
       //  버튼 변경
       if (quizIndex === quizAmount - 1) {
         setButtonLabel("Check your score!");
@@ -107,8 +132,6 @@ export default function Quiz({ resCode, quizList }: QuizProp) {
     }
   }
 
-  //  FOR DEBUG
-  console.log(quizResultList[quizIndex].correct_answer);
   return (
     <>
       {resCode === 0 ? (
@@ -118,7 +141,7 @@ export default function Quiz({ resCode, quizList }: QuizProp) {
             index={quizIndex}
             onSelectChange={onSelectChange}
           />
-          <Button onClick={quizOnClick}>{buttonLabel}</Button>
+          <Button onClick={onQuizClick}>{buttonLabel}</Button>
         </Container>
       ) : (
         // TO-DO : resCode에 따른 에러 문구 출력
@@ -143,10 +166,12 @@ export async function getServerSideProps(context) {
 
   //  정답과 오답을 섞은 출력용 리스트 할당
   const data = originData.map((quiz) => {
-    quiz.answerList = [...quiz.incorrect_answers, quiz.correct_answer].sort(
-      () => Math.random() - Math.random()
-    );
-    return quiz;
+    return {
+      ...quiz,
+      answerList: [...quiz.incorrect_answers, quiz.correct_answer].sort(
+        () => Math.random() - Math.random()
+      ),
+    };
   });
 
   return {
