@@ -51,6 +51,14 @@ const StyledQuizItem = styled("div", {
       top: "-10px",
       left: "5px",
     },
+    ".correct": {
+      fontWeight: "bold",
+      color: "$greenCyan",
+    },
+    ".incorrect": {
+      fontWeight: "bold",
+      color: "$red",
+    },
   },
 });
 
@@ -65,13 +73,21 @@ export default function QuizItem({
   index,
   onSelectChange,
 }: QuizItemProps) {
-  console.log(quiz);
-  const isChecked = (idx: number) =>
-    quiz.userSelectedIndex === idx ? `checked="false"` : null;
+  const answerStyle = (answer: string, answerindex: number) =>
+    quiz.isCorrect !== undefined
+      ? answer === quiz.correct_answer
+        ? "correct"
+        : // ? answerindex === quiz.userSelectedIndex
+        //   ? "correct"
+        //   : ""
+        answerindex === quiz.userSelectedIndex
+        ? "incorrect"
+        : ""
+      : "";
 
-  const newAnswerList = quiz.answerList.map((answer, idx) => {
+  const newAnswerList = quiz.answerList.map((answer, answerindex) => {
     return (
-      <div className="answer" key={idx}>
+      <div className="answer" key={answerindex}>
         <InputGroup.Radio
           type="radio"
           name="answer"
@@ -79,9 +95,13 @@ export default function QuizItem({
           value={answer}
           onChange={onSelectChange}
           disabled={quiz.isCorrect !== undefined}
-          checked={quiz.userSelectedIndex === idx}
+          checked={answerindex === quiz.userSelectedIndex}
         />
-        <label htmlFor={answer} dangerouslySetInnerHTML={{ __html: answer }} />
+        <label
+          className={answerStyle(answer, answerindex)}
+          htmlFor={answer}
+          dangerouslySetInnerHTML={{ __html: answer }}
+        />
       </div>
     );
   });

@@ -46,6 +46,7 @@ export default function Quiz({ resCode, quizList }: QuizProp) {
   const [buttonLabel, setButtonLabel] = useState("Check answer"); //  버튼 문구 : 퀴즈 풀이 상태 / index에 따라 변경
   const [currentSelectedValue, setCurrentSelectedValue] =
     useState<string>(null); //  자식인 quizitem에서 현재 선택된 radio input의 value
+  const [startTime, setStartTime] = useState<Date>(new Date()); //  퀴즈 시작 시간
 
   //  자식인 QuizItem에서 발생한 select 이벤트를 통해 현재 선택된 값을 상태로 저장
   const onSelectChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -85,8 +86,8 @@ export default function Quiz({ resCode, quizList }: QuizProp) {
       //  정답 체크 전
 
       //  정답 체크
-      const modifiedList = quizResultList.map((item, idx) => {
-        if (idx === quizIndex) {
+      const modifiedList = quizResultList.map((item, index) => {
+        if (index === quizIndex) {
           return {
             ...item,
             isCorrect: currentSelectedValue === item.correct_answer,
@@ -95,13 +96,6 @@ export default function Quiz({ resCode, quizList }: QuizProp) {
           return item;
         }
       });
-
-      //  TO-DO : alert -> 정답 여부 알려주는 별도 UI 추가
-      if (modifiedList[quizIndex].isCorrect) {
-        alert("correct awnser!");
-      } else {
-        alert("wrong awnser!");
-      }
 
       // setState -> asnyc
       setQuizResultList(modifiedList); // -> event callback
@@ -116,12 +110,23 @@ export default function Quiz({ resCode, quizList }: QuizProp) {
 
       if (quizIndex === quizAmount - 1) {
         //  마지막 퀴즈일 경우 : 결과 페이지로 이동
+        let correctCount = 0,
+          incorrectCount = 0;
+        quizResultList.map((item) => {
+          if (item.isCorrect) correctCount++;
+          else incorrectCount++;
+        });
+
         Router.push(
           {
             pathname: "/result",
-            //  TO-DO : query로 채점 결과 전달
-          },
-          "/result"
+            query: {
+              startTime: startTime.toString(),
+              correctCount: correctCount,
+              incorrectCount: incorrectCount,
+            },
+          }
+          // "/result"
         );
       } else {
         //  마지막이 아닐 경우 다음 퀴즈로 이동
