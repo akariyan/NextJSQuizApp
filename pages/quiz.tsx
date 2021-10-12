@@ -41,12 +41,12 @@ export default function Quiz({ resCode, quizList }: QuizProp) {
   const router = useRouter();
   const quizAmount = Number(router.query.amount);
 
-  const [quizIndex, setQuizIndex] = useState(0);
+  const [quizIndex, setQuizIndex] = useState<number>(0);
   const [quizResultList, setQuizResultList] = useState<QuizData[]>(quizList);
-  const [buttonLabel, setButtonLabel] = useState("Check answer"); //  버튼 문구 : 퀴즈 풀이 상태 / index에 따라 변경
+  const [buttonLabel, setButtonLabel] = useState<string>("Check answer"); //  버튼 문구 : 퀴즈 풀이 상태 / index에 따라 변경
   const [currentSelectedValue, setCurrentSelectedValue] =
     useState<string>(null); //  자식인 quizitem에서 현재 선택된 radio input의 value
-  const [startTime, setStartTime] = useState<Date>(new Date()); //  퀴즈 시작 시간
+  const [startTime, setStartTime] = useState<number>(new Date().getTime()); //  퀴즈 시작 시간
 
   //  자식인 QuizItem에서 발생한 select 이벤트를 통해 현재 선택된 값을 상태로 저장
   const onSelectChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -117,11 +117,19 @@ export default function Quiz({ resCode, quizList }: QuizProp) {
           else incorrectCount++;
         });
 
+        const endTime = new Date().getTime();
+        const solveTime = endTime - startTime;
+
         Router.push(
           {
             pathname: "/result",
             query: {
-              startTime: startTime.toString(),
+              amount: quizAmount,
+              category: Number(router.query.category),
+              difficulty: router.query.difficulty
+                ? router.query.difficulty
+                : "Any difficulty",
+              solveTime: solveTime,
               correctCount: correctCount,
               incorrectCount: incorrectCount,
             },

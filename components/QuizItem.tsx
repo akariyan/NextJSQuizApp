@@ -1,7 +1,7 @@
-import React, { ChangeEvent, useMemo, useState } from "react";
+import React, { ChangeEvent } from "react";
 import { QuizData } from "../rest/types/apiType";
 import { styled } from "../stitches.config";
-import InputGroup, { InputGroupProps } from "./ui/InputGroup";
+import InputGroup from "./ui/InputGroup";
 
 const StyledQuizItem = styled("div", {
   display: "grid",

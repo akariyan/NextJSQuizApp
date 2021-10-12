@@ -65,6 +65,11 @@ export default function Home() {
   }, []);
 
   function goQuiz() {
+    //  TO-DO : UI alert -> 다른 UI
+    if (amount <= 0) {
+      alert("Please input quiz amount");
+      return;
+    }
     Router.push(
       {
         pathname: "/quiz",

@@ -8,8 +8,7 @@ const StyledInput = styled("input", {
   variants: {},
 });
 
-export interface InputGroupProps
-  extends InputHTMLAttributes<HTMLInputElement> {}
+interface InputGroupProps extends InputHTMLAttributes<HTMLInputElement> {}
 
 function Text(props: InputGroupProps) {
   return <StyledInput {...props} />;

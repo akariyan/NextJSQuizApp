@@ -1,6 +1,7 @@
 import { ISelectBoxOption } from "./types/selectBoxOption";
 
 export const QUIZ_CATEGORYS: ISelectBoxOption[] = [
+  { id: 0, value: "0", text: "Any Category" },
   { id: 1, value: "9", text: "General Knowledge" },
   { id: 2, value: "20", text: "Mythology" },
   { id: 3, value: "21", text: "Sports" },
