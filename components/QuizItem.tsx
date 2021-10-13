@@ -67,12 +67,7 @@ interface QuizItemProps {
   index: number;
   onSelectChange: (e: ChangeEvent<HTMLInputElement>) => void;
 }
-
-export default function QuizItem({
-  quiz,
-  index,
-  onSelectChange,
-}: QuizItemProps) {
+function QuizItem({ quiz, index, onSelectChange }: QuizItemProps) {
   const answerStyle = (answer: string, answerindex: number) =>
     quiz.isCorrect !== undefined
       ? answer === quiz.correct_answer
@@ -120,3 +115,5 @@ export default function QuizItem({
     </StyledQuizItem>
   );
 }
+
+export default QuizItem;

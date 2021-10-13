@@ -2,7 +2,7 @@ import React from "react";
 import NextDocument, { Html, Head, Main, NextScript } from "next/document";
 import { getCssText } from "../stitches.config";
 
-export default class Document extends NextDocument {
+class Document extends NextDocument {
   render() {
     return (
       <Html lang="en">
@@ -15,8 +15,11 @@ export default class Document extends NextDocument {
         <body>
           <Main />
           <NextScript />
+          <div id="modal-root"></div>
         </body>
       </Html>
     );
   }
 }
+
+export default Document;

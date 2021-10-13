@@ -1,12 +1,5 @@
 import { useRouter } from "next/router";
-import {
-  ChangeEvent,
-  ReactElement,
-  useCallback,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import { ChangeEvent, useState } from "react";
 import Button from "../components/ui/Button";
 import { getQuiz } from "../rest/quizAPI";
 import {
@@ -18,6 +11,7 @@ import {
 import { styled } from "../stitches.config";
 import Router from "next/router";
 import QuizItem from "../components/QuizItem";
+import Modal from "../components/ui/Modal";
 
 const Container = styled("div", {
   gridArea: "main",
@@ -32,12 +26,12 @@ const Container = styled("div", {
   },
 });
 
-interface QuizProp {
+interface QuizProps {
   resCode: responseCode;
   quizList: QuizData[];
 }
 
-export default function Quiz({ resCode, quizList }: QuizProp) {
+function Quiz({ resCode, quizList }: QuizProps) {
   const router = useRouter();
   const quizAmount = Number(router.query.amount);
 
@@ -47,6 +41,8 @@ export default function Quiz({ resCode, quizList }: QuizProp) {
   const [currentSelectedValue, setCurrentSelectedValue] =
     useState<string>(null); //  자식인 quizitem에서 현재 선택된 radio input의 value
   const [startTime, setStartTime] = useState<number>(new Date().getTime()); //  퀴즈 시작 시간
+  const [showCheckModal, setShowCheckModal] = useState<boolean>(false);
+  const [showAnswerModal, setShowAnswerModal] = useState<boolean>(false);
 
   //  자식인 QuizItem에서 발생한 select 이벤트를 통해 현재 선택된 값을 상태로 저장
   const onSelectChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -54,12 +50,10 @@ export default function Quiz({ resCode, quizList }: QuizProp) {
     setQuizResultList((prevState) => {
       return prevState.map((quiz, quizindex) => {
         if (quizIndex === quizindex) {
-          let selectIndex: number;
-          quiz.answerList.map((answer, answerindex) => {
-            if (answer === e.target.value) {
-              selectIndex = answerindex;
-            }
-          });
+          // es6 array helper methods
+          const selectIndex = quiz.answerList.findIndex(
+            (answer) => answer === e.target.value
+          );
           return {
             ...quiz,
             userSelectedIndex: selectIndex,
@@ -76,8 +70,7 @@ export default function Quiz({ resCode, quizList }: QuizProp) {
   //  버튼 클릭시
   function onQuizClick() {
     if (currentSelectedValue === null) {
-      //  TO-DO : alert -> 안내 UI 추가
-      alert("Please choice your awnser");
+      setShowCheckModal(true);
       return;
     }
 
@@ -105,6 +98,7 @@ export default function Quiz({ resCode, quizList }: QuizProp) {
       } else {
         setButtonLabel(`Next quiz(${quizIndex + 1}/${quizAmount})`);
       }
+      setShowAnswerModal(true);
     } else {
       //  정답 체크 후
 
@@ -112,7 +106,7 @@ export default function Quiz({ resCode, quizList }: QuizProp) {
         //  마지막 퀴즈일 경우 : 결과 페이지로 이동
         let correctCount = 0,
           incorrectCount = 0;
-        quizResultList.map((item) => {
+        quizResultList.forEach((item) => {
           if (item.isCorrect) correctCount++;
           else incorrectCount++;
         });
@@ -155,6 +149,26 @@ export default function Quiz({ resCode, quizList }: QuizProp) {
             onSelectChange={onSelectChange}
           />
           <Button onClick={onQuizClick}>{buttonLabel}</Button>
+          {showCheckModal && (
+            <Modal
+              onClose={() => setShowCheckModal(false)}
+              show={showCheckModal}
+              title="Select Your Answer"
+              message="Please Choice Your Answer"
+            />
+          )}
+          {showAnswerModal && (
+            <Modal
+              onClose={() => setShowAnswerModal(false)}
+              show={showAnswerModal}
+              title="Check Answer Result"
+              message={
+                quizResultList[quizIndex].isCorrect
+                  ? "Correct Answer"
+                  : "Incorrect Answer"
+              }
+            />
+          )}
         </Container>
       ) : (
         // TO-DO : resCode에 따른 에러 문구 출력
@@ -194,3 +208,5 @@ export async function getServerSideProps(context) {
     },
   };
 }
+
+export default Quiz;

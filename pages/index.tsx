@@ -5,6 +5,7 @@ import Select from "../components/ui/Select";
 import { QUIZ_CATEGORYS, QUIZ_DIFFICULTY } from "../Constants";
 import { useCallback, useState, ChangeEvent, ChangeEventHandler } from "react";
 import Router from "next/router";
+import Modal from "../components/ui/Modal";
 
 const Container = styled("div", {
   gridArea: "main",
@@ -41,10 +42,11 @@ const Container = styled("div", {
   },
 });
 
-export default function Home() {
+function Home() {
   const [amount, setAmount] = useState(0);
   const [category, setCategory] = useState(0);
   const [difficulty, setDifficulty] = useState("");
+  const [showAmountModal, setShowAmountModal] = useState(false);
 
   const onInputChange = useCallback(
     (e: ChangeEvent<HTMLInputElement>) => {
@@ -65,9 +67,8 @@ export default function Home() {
   }, []);
 
   function goQuiz() {
-    //  TO-DO : UI alert -> 다른 UI
     if (amount <= 0) {
-      alert("Please input quiz amount");
+      setShowAmountModal(true);
       return;
     }
     Router.push(
@@ -116,6 +117,14 @@ export default function Home() {
         />
       </div>
       <Button onClick={goQuiz}>Start Quiz!</Button>
+      <Modal
+        onClose={() => setShowAmountModal(false)}
+        show={showAmountModal}
+        title="Input Quiz Amount"
+        message="Please input quiz amount"
+      />
     </Container>
   );
 }
+
+export default Home;
