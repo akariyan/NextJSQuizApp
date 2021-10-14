@@ -106,6 +106,16 @@ function Result() {
     [router.query.category]
   ); // computed value
 
+  const solveTimeMin = useMemo(
+    () => Math.floor(Number(router.query.solveTime) / 60000),
+    [router.query.solveTime]
+  );
+
+  const solveTimeSec = useMemo(
+    () => Math.floor((Number(router.query.solveTime) % 60000) / 1000),
+    [router.query.solveTime]
+  );
+
   return (
     <Container>
       <div className="label-cell">
@@ -131,9 +141,7 @@ function Result() {
       </div>
       <div className="function-cell">
         <span className="label">
-          {`${Math.floor(
-            Number(router.query.solveTime) / 60000
-          )} Min ${Math.floor(Number(router.query.solveTime) / 1000)} Sec`}
+          {solveTimeMin} Min {solveTimeSec} Sec
         </span>
       </div>
       <div className="label-cell">
@@ -148,7 +156,36 @@ function Result() {
       <div className="function-cell">
         <span className="label">{router.query.incorrectCount}</span>
       </div>
-      <Button className="retry-button" onClick={() => router.back()}>
+      <Button
+        className="retry-button"
+        onClick={() => {
+          router.push(
+            {
+              pathname: "/quiz",
+              query: {
+                amount: Number(router.query.amount),
+                category:
+                  Number(router.query.category) === 0
+                    ? undefined
+                    : Number(router.query.category),
+                difficulty:
+                  router.query.difficulty === "Any difficulty"
+                    ? undefined
+                    : router.query.difficulty,
+                categoryList: router.query.categoryList,
+                typeList: router.query.typeList,
+                difficultyList: router.query.difficultyList,
+                questionList: router.query.questionList,
+                correct_answerList: router.query.correct_answerList,
+                incorrect_answersList_0: router.query.incorrect_answersList_0,
+                incorrect_answersList_1: router.query.incorrect_answersList_1,
+                incorrect_answersList_2: router.query.incorrect_answersList_2,
+              },
+            },
+            "/quiz"
+          );
+        }}
+      >
         Retry
       </Button>
       <Button className="otherquiz-button" onClick={() => router.push("/")}>

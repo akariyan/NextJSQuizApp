@@ -13,21 +13,24 @@ const ModalOverlay = styled("div", {
   alignItems: "center",
   backgroundColor: "rgba(0, 0, 0, 0.5)",
   ".modal": {
-    background: "white",
-    width: "500px",
-    height: "600px",
+    display: "grid",
+    gridTemplateRows: "1fr 3fr",
+    background: "$black",
+    color: "$white",
+    width: "20vw",
+    height: "20vh",
     borderRadius: "15px",
     padding: "15px",
-    ".modal-header": {
-      display: "flex",
-      justifyContent: "flex-end",
-      fontSize: "25px",
-      ".modal-close": {
-        cursor: "pointer",
-      },
+    ".modal-title": {
+      fontSize: "1.7em",
+      fontWeight: "bold",
     },
     ".modal-body": {
-      paddingTop: "10px",
+      display: "grid",
+      gridTemplateRows: "4fr 1fr",
+      ".modal-close-message": {
+        color: "#abaaaa", // custom gray
+      },
     },
   },
 });
@@ -47,16 +50,14 @@ function Modal({ show, onClose, title, message }: ModalProps) {
   }, []);
 
   const modalContent = show ? (
-    <ModalOverlay>
+    <ModalOverlay onClick={onClose}>
       <div className="modal">
-        <div className="modal-header">
-          <span className="modal-close" onClick={onClose}>
-            x
-          </span>
-        </div>
         {title && <div className="modal-title">{title}</div>}
         <div className="modal-body">
           <div className="modal-message">{message}</div>
+          <div className="modal-close-message">
+            Click anywhere to close the window
+          </div>
         </div>
       </div>
     </ModalOverlay>

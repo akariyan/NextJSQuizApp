@@ -26,10 +26,51 @@ const Container = styled("div", {
   },
 });
 
+const ErrorPage = styled("div", {
+  gridArea: "main",
+  display: "grid",
+  gridTemplateRows: "1fr 3fr",
+  paddingLeft: "30vw",
+  paddingRight: "30vw",
+  lineHeight: "5em",
+  ".error-header": {
+    color: "$red",
+    fontSize: "3em",
+    fontWeight: "bold",
+  },
+  ".error-body": {
+    fontSize: "2em",
+  },
+});
+
 interface QuizProps {
   resCode: responseCode;
   quizList: QuizData[];
 }
+
+const resCodeHeader = (resCode: number) => {
+  switch (resCode) {
+    case 1:
+      return "No Quiz Result";
+    case 2:
+      return "Quiz Option Error";
+    case 3:
+    case 4:
+      return "Quiz Server Communication Error";
+  }
+};
+
+const resCodeBody = (resCode: number) => {
+  switch (resCode) {
+    case 1:
+      return "Try again with another option.\ne.g)Asking for 50 Questions in a Category that only has 20.";
+    case 2:
+      return "Try again with another option.\ne.g)number paramater is not number";
+    case 3:
+    case 4:
+      return "Please try again.";
+  }
+};
 
 function Quiz({ resCode, quizList }: QuizProps) {
   const router = useRouter();
@@ -126,9 +167,23 @@ function Quiz({ resCode, quizList }: QuizProps) {
               solveTime: solveTime,
               correctCount: correctCount,
               incorrectCount: incorrectCount,
+              categoryList: quizList.map((quiz) => quiz.category),
+              typeList: quizList.map((quiz) => quiz.type),
+              difficultyList: quizList.map((quiz) => quiz.difficulty),
+              questionList: quizList.map((quiz) => quiz.question),
+              correct_answerList: quizList.map((quiz) => quiz.correct_answer),
+              incorrect_answersList_0: quizList.map(
+                (quiz) => quiz.incorrect_answers[0]
+              ),
+              incorrect_answersList_1: quizList.map(
+                (quiz) => quiz.incorrect_answers[1]
+              ),
+              incorrect_answersList_2: quizList.map(
+                (quiz) => quiz.incorrect_answers[2]
+              ),
             },
-          }
-          // "/result"
+          },
+          "/result"
         );
       } else {
         //  마지막이 아닐 경우 다음 퀴즈로 이동
@@ -172,7 +227,19 @@ function Quiz({ resCode, quizList }: QuizProps) {
         </Container>
       ) : (
         // TO-DO : resCode에 따른 에러 문구 출력
-        <div>error : {resCode}</div>
+        <ErrorPage>
+          <div className="error-header">{resCodeHeader(resCode)}</div>
+          <div className="error-body">
+            {resCodeBody(resCode)
+              .split("\n")
+              .map((str, index) => (
+                <span key={index}>
+                  {str}
+                  <br />
+                </span>
+              ))}
+          </div>
+        </ErrorPage>
       )}
     </>
   );
@@ -187,26 +254,61 @@ export async function getServerSideProps(context) {
       ? (context.query.difficulty as Difficulty)
       : undefined,
   };
-  const res = await getQuiz(options);
-  const resCode = res.data.response_code;
-  const originData = res.data.results;
 
-  //  정답과 오답을 섞은 출력용 리스트 할당
-  const data = originData.map((quiz) => {
+  if (context.query.categoryList === (null || undefined)) {
+    //  index page에서 넘어오는 경우
+    const res = await getQuiz(options);
+    const resCode = res.data.response_code;
+    const originData = res.data.results;
+
+    //  정답과 오답을 섞은 출력용 리스트 할당
+    const data = originData.map((quiz) => {
+      return {
+        ...quiz,
+        answerList: [...quiz.incorrect_answers, quiz.correct_answer].sort(
+          () => Math.random() - Math.random()
+        ),
+      };
+    });
+
     return {
-      ...quiz,
-      answerList: [...quiz.incorrect_answers, quiz.correct_answer].sort(
-        () => Math.random() - Math.random()
-      ),
+      props: {
+        resCode,
+        quizList: data,
+      },
     };
-  });
+  } else {
+    //  result page에서 retry를 통해 넘어오는 경우
+    const resCode = 0;
+    let quizList: QuizData[] = [];
 
-  return {
-    props: {
-      resCode,
-      quizList: data,
-    },
-  };
+    for (let i = 0; i < options.amount; i++) {
+      quizList.push({
+        category: context.query.categoryList[i],
+        type: context.query.typeList[i],
+        difficulty: context.query.difficultyList[i] as Difficulty,
+        question: context.query.questionList[i],
+        correct_answer: context.query.correct_answerList[i],
+        incorrect_answers: [
+          context.query.incorrect_answersList_0[i],
+          context.query.incorrect_answersList_1[i],
+          context.query.incorrect_answersList_2[i],
+        ],
+        answerList: [
+          context.query.correct_answerList[i],
+          context.query.incorrect_answersList_0[i],
+          context.query.incorrect_answersList_1[i],
+          context.query.incorrect_answersList_2[i],
+        ].sort(() => Math.random() - Math.random()),
+      });
+    }
+    return {
+      props: {
+        resCode,
+        quizList,
+      },
+    };
+  }
 }
 
 export default Quiz;
